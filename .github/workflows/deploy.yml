@@ -48,7 +48,7 @@ jobs:
           jsonlint-php public/data.min.json
           jsonlint-php public/data.minify.json
   deploy:
-    name: Deploy
+    name: Deploy to repo
     runs-on: ubuntu-latest
     needs: test
     steps:
@@ -59,9 +59,17 @@ jobs:
         with:
           name: rules-artifact
           path: public
-      - name: Deploy to Github Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
-          publish_branch: gh-pages
+      - name: Copy files to result
+        run: |
+          mkdir -p result
+          cp public/data.min.json result/data.min.json
+          cp public/rules.min.hash result/rules.min.hash
+          cp public/data.minify.json result/data.minify.json
+          cp public/rules.minify.hash result/rules.minify.hash
+      - name: Commit and push result
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add result/
+          git commit -m "Update result files [skip ci]" || echo "No changes to commit"
+          git push
