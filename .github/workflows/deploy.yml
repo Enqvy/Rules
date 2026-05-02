@@ -1,4 +1,6 @@
 name: Build, Test and Deploy Rules
+permissions:
+  contents: write
 on:
   push:
     branches:
